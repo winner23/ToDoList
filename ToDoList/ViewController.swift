@@ -1,6 +1,5 @@
 
 import UIKit
-import SafariServices
 
 class ViewController: UIViewController, UITextFieldDelegate {
     
@@ -16,6 +15,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     
     @IBAction func addButtonTapped(_ sender: YTRoundedButton) {
+        
         insertNewTask()
     }
     
@@ -35,6 +35,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
             addTaskField.text = ""
             return
         }
+        
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let task = TaskModel(context: context)
+        
+        task.name = addTaskField.text
         
         taskList.append(addTaskField.text!)
         
