@@ -97,16 +97,20 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]?
     {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        let task = taskList[indexPath.row]
-        
+//        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+//        let task = taskList[indexPath.row]
+//        
         let update = UITableViewRowAction(style: .normal, title: "Update") { action, index in
             self.addTaskField.text = self.taskList[indexPath.row].name
-            context.delete(task)
-            (UIApplication.shared.delegate as! AppDelegate).saveContext()
-            
-            self.taskList.remove(at: indexPath.row)
-            
+//            context.delete(task)
+//            (UIApplication.shared.delegate as! AppDelegate).saveContext()
+//            do{
+//                self.taskList = try context.fetch(TaskModel.fetchRequest())
+//            } catch {
+//                print("Fetching faild!")
+//            }
+//            //self.taskList.remove(at: indexPath.row)
+            self.deleteTask(indexPath: indexPath)
             tableView.beginUpdates()
             tableView.deleteRows(at: [indexPath], with: .automatic)
             tableView.endUpdates()
@@ -115,10 +119,14 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         }
         let delete = UITableViewRowAction(style: .default, title: "Delete") { action, index in
             
-            context.delete(task)
-            (UIApplication.shared.delegate as! AppDelegate).saveContext()
-            self.taskList.remove(at: indexPath.row)
-            
+//            context.delete(task)
+//            (UIApplication.shared.delegate as! AppDelegate).saveContext()
+//            do{
+//                self.taskList = try context.fetch(TaskModel.fetchRequest())
+//            } catch {
+//                print("Fetching faild!")
+//            }            //self.taskList.remove(at: indexPath.row)
+            self.deleteTask(indexPath: indexPath)
             tableView.beginUpdates()
             tableView.deleteRows(at: [indexPath], with: .automatic)
             tableView.endUpdates()
@@ -126,5 +134,20 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         }
         return [delete, update]
     }
+    
+    func deleteTask(indexPath: IndexPath){
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let task = taskList[indexPath.row]
+        context.delete(task)
+        (UIApplication.shared.delegate as! AppDelegate).saveContext()
+        do{
+            self.taskList = try context.fetch(TaskModel.fetchRequest())
+        } catch {
+            print("Fetching faild!")
+        }
+        
+        
+    }
+    
 }
 
