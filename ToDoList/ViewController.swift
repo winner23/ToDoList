@@ -27,19 +27,20 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     func insertNewTask() {
         
-        
-//        if taskList.contains(addTaskField.text!) {
-//            let alert = UIAlertController(title: "Worning!", message: "This task already exists!", preferredStyle: UIAlertControllerStyle.alert)
-//            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-//            self.present(alert, animated: true, completion: nil)
-//            addTaskField.text = ""
-//            return
-//        }
+        for taskChk in taskList {
+            if taskChk.name == addTaskField.text! {
+                let alert = UIAlertController(title: "Worning!", message: "This task already exists!", preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+                addTaskField.text = ""
+                return
+            }
+        }
         
         let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
         let task = TaskModel(context: context)
-        
         task.name = addTaskField.text!
+
         taskList.append(task)
         (UIApplication.shared.delegate as! AppDelegate).saveContext()
         
