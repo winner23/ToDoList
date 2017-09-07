@@ -5,6 +5,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var addTaskField: UITextField!
+    @IBOutlet weak var addButton: YTRoundedButton!
     
     var taskList: [TaskModel] = []
     
@@ -16,22 +17,24 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func addButtonTapped(_ sender: YTRoundedButton) {
         if addTaskField.text!.isEmpty {
-            let alert = UIAlertController(title: "Worning!", message: "Task cannot be empty!", preferredStyle: UIAlertControllerStyle.alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+            showWarningMsg(textMsg: "Task cannot be empty!")
             return
         }
         insertNewTask()
     }
     
+    private func showWarningMsg(textMsg: String) {
+        let alert = UIAlertController(title: "Warning!", message: textMsg, preferredStyle: UIAlertControllerStyle.alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
     
-    func insertNewTask() {
+    private func insertNewTask() {
         
         for taskChk in taskList {
+            //This task already exists!
             if taskChk.name == addTaskField.text! {
-                let alert = UIAlertController(title: "Worning!", message: "This task already exists!", preferredStyle: UIAlertControllerStyle.alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
+                showWarningMsg(textMsg: "This task already exists!")
                 addTaskField.text = ""
                 return
             }
@@ -52,6 +55,20 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
         addTaskField.text = ""
         view.endEditing(true)
+    }
+    
+    func deleteTask(indexPath: IndexPath){
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let task = taskList[indexPath.row]
+        context.delete(task)
+        (UIApplication.shared.delegate as! AppDelegate).saveContext()
+        do{
+            taskList = try context.fetch(TaskModel.fetchRequest())
+        } catch {
+            showWarningMsg(textMsg: "Fetching faild!")
+            exit(500)
+        }
+
     }
 }
 
@@ -121,19 +138,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         return [delete, update]
     }
     
-    func deleteTask(indexPath: IndexPath){
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        let task = taskList[indexPath.row]
-        context.delete(task)
-        (UIApplication.shared.delegate as! AppDelegate).saveContext()
-        do{
-            self.taskList = try context.fetch(TaskModel.fetchRequest())
-        } catch {
-            print("Fetching faild!")
-        }
-        
-        
-    }
+    
     
 }
 
