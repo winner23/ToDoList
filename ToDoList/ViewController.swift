@@ -57,7 +57,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         view.endEditing(true)
     }
     
-    func deleteTask(indexPath: IndexPath){
+    func modifyTask(indexPath: IndexPath){
         let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
         let task = taskList[indexPath.row]
         context.delete(task)
@@ -68,8 +68,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
             showWarningMsg(textMsg: "Fetching faild!")
             exit(500)
         }
-
+        tableView.beginUpdates()
+        tableView.deleteRows(at: [indexPath], with: .automatic)
+        tableView.endUpdates()
     }
+    
+    
 }
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
@@ -119,20 +123,13 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         let update = UITableViewRowAction(style: .normal, title: "Update") { action, index in
 
             self.addTaskField.text = self.taskList[indexPath.row].name
-
-            self.deleteTask(indexPath: indexPath)
-            tableView.beginUpdates()
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            tableView.endUpdates()
+            self.modifyTask(indexPath: indexPath)
             
             
         }
         let delete = UITableViewRowAction(style: .default, title: "Delete") { action, index in
             
-            self.deleteTask(indexPath: indexPath)
-            tableView.beginUpdates()
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            tableView.endUpdates()
+            self.modifyTask(indexPath: indexPath)
             
         }
         return [delete, update]
