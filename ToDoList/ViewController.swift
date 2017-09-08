@@ -7,6 +7,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var addTaskField: UITextField!
     @IBOutlet weak var addButton: YTRoundedButton!
     
+    //List of tasks
     var taskList: [TaskModel] = []
     
     override func viewDidLoad() {
@@ -14,7 +15,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         tableView.tableFooterView = UIView(frame: CGRect.zero)
     }
     
-    
+    //Action for button Add
     @IBAction func addButtonTapped(_ sender: YTRoundedButton) {
         if addTaskField.text!.isEmpty {
             showWarningMsg(textMsg: "Task cannot be empty!")
@@ -29,10 +30,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
         self.present(alert, animated: true, completion: nil)
     }
     
+    
+    //Append new task to list
     private func insertNewTask() {
         
         for taskChk in taskList {
-            //This task already exists!
+            //check for task already exists!
             if taskChk.name == addTaskField.text! {
                 showWarningMsg(textMsg: "This task already exists!")
                 addTaskField.text = ""
@@ -48,16 +51,18 @@ class ViewController: UIViewController, UITextFieldDelegate {
         (UIApplication.shared.delegate as! AppDelegate).saveContext()
         
         let indexPath = IndexPath(row: taskList.count - 1, section: 0)
-        
+        //update interface
         tableView.beginUpdates()
         tableView.insertRows(at: [indexPath], with: .automatic)
         tableView.endUpdates()
-        
+        //clearing of the tasks text field
         addTaskField.text = ""
         view.endEditing(true)
     }
     
-    func modifyTask(indexPath: IndexPath){
+    
+    //Replacing of existing task and append to the end
+    func replaceTask(indexPath: IndexPath){
         let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
         let task = taskList[indexPath.row]
         context.delete(task)
@@ -78,13 +83,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
+    //Update if data when app appear on the screen
     override func viewWillAppear(_ animated: Bool) {
-        //
         getData()
-        //
+        //Update GUI
         tableView.reloadData()
     }
     
+    //Get data from CoreData
     func getData() {
         let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
         do{
@@ -93,18 +99,17 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             print("Fetching faild!")
         }
     }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return taskList.count
     }
     
-    
+    //Fill
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let taskText = taskList[indexPath.row]
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell") as! TaskCell
         cell.taskTitle.text = taskText.name
-        
         return cell
     }
     
@@ -116,20 +121,19 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         return true
     }
     
-    
+    //Swipe for manage buttons
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]?
     {
-
+        //
         let update = UITableViewRowAction(style: .normal, title: "Update") { action, index in
 
             self.addTaskField.text = self.taskList[indexPath.row].name
-            self.modifyTask(indexPath: indexPath)
-            
-            
+            self.replaceTask(indexPath: indexPath)
         }
+        //
         let delete = UITableViewRowAction(style: .default, title: "Delete") { action, index in
             
-            self.modifyTask(indexPath: indexPath)
+            self.replaceTask(indexPath: indexPath)
             
         }
         return [delete, update]
